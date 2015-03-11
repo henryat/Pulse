@@ -16,7 +16,7 @@
 
 @implementation GameScene
 
-double introduceLoopTimerDuration = 5.0;
+double introduceLoopTimerDuration = 7.0;
 
 -(void)didMoveToView:(SKView *)view {
     
@@ -146,6 +146,14 @@ double introduceLoopTimerDuration = 5.0;
     for (SoundFilePlayer *player in _soundLoopers) {
         [player play];
         [player.audioAnalyzer play];
+    }
+    
+    // randomize order
+    NSUInteger count = [_soundInteractors count];
+    for (int i = 0; i < count; ++i) {
+        NSUInteger nElements = count - i;
+        int n = (arc4random() % nElements) + i;
+        [_soundInteractors exchangeObjectAtIndex:i withObjectAtIndex:n];
     }
     
     _timer = [NSTimer scheduledTimerWithTimeInterval:introduceLoopTimerDuration target:self selector:@selector(bringInNewLoop) userInfo:nil repeats:YES];

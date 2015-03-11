@@ -38,7 +38,7 @@ double alphaValue = 0.4;
 
 // animation timings
 double volumeFadeTimeInSeconds = 1.0;
-double appearAnimationTimeInSeconds = 2.0;
+double appearAnimationTimeInSeconds = 2.5;
 double ringFadeTimeInSeconds = 0.2;
 
 - (instancetype)init {
