@@ -1,6 +1,6 @@
 //
 //  GameViewController.h
-//  Pulse
+//  LoopLauncher
 //
 
 //  Copyright (c) 2015 Henry Thiemann. All rights reserved.
@@ -10,5 +10,11 @@
 #import <SpriteKit/SpriteKit.h>
 
 @interface GameViewController : UIViewController
+
+@property UILabel *goalNumberLabel;
+@property UIStepper *goalCounter;
+@property UIView *homeView;
+@property UIView *gameViewContainer;
+@property BOOL shouldHideStatusBar;
 
 @end
