@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA3A46051AB3A8F8002A1032 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = BA3A46041AB3A8F8002A1032 /* background.png */; };
 		BA8FB3931AB38514005A6F6E /* SoftBoingInstrument.m in Sources */ = {isa = PBXBuildFile; fileRef = BA8FB3921AB38514005A6F6E /* SoftBoingInstrument.m */; };
 		BAB790B41AB0119700A3D8DD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BAB790B31AB0119700A3D8DD /* main.m */; };
 		BAB790B71AB0119700A3D8DD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BAB790B61AB0119700A3D8DD /* AppDelegate.m */; };
@@ -190,6 +191,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BA3A46041AB3A8F8002A1032 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
 		BA8FB3911AB38514005A6F6E /* SoftBoingInstrument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoftBoingInstrument.h; sourceTree = "<group>"; };
 		BA8FB3921AB38514005A6F6E /* SoftBoingInstrument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoftBoingInstrument.m; sourceTree = "<group>"; };
 		BAB790AE1AB0119700A3D8DD /* Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -614,6 +616,7 @@
 		BAB790B11AB0119700A3D8DD /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BA3A46041AB3A8F8002A1032 /* background.png */,
 				BAB790B21AB0119700A3D8DD /* Info.plist */,
 				BAB790B31AB0119700A3D8DD /* main.m */,
 			);
@@ -1362,6 +1365,7 @@
 				BAB792EC1AB0126100A3D8DD /* relaxation-Cypress-90.aiff in Resources */,
 				BAB7924D1AB011A100A3D8DD /* LICENSE.TXT in Resources */,
 				BAB792F11AB0126100A3D8DD /* relaxation-Eighties-EP-90.aiff in Resources */,
+				BA3A46051AB3A8F8002A1032 /* background.png in Resources */,
 				BAB792F21AB0126100A3D8DD /* relaxation-Empee-EP-90.aiff in Resources */,
 				BAB790C71AB0119700A3D8DD /* LaunchScreen.xib in Resources */,
 				BAB790C41AB0119700A3D8DD /* Images.xcassets in Resources */,
