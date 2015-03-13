@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BA8FB3931AB38514005A6F6E /* SoftBoingInstrument.m in Sources */ = {isa = PBXBuildFile; fileRef = BA8FB3921AB38514005A6F6E /* SoftBoingInstrument.m */; };
 		BAB790B41AB0119700A3D8DD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BAB790B31AB0119700A3D8DD /* main.m */; };
 		BAB790B71AB0119700A3D8DD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = BAB790B61AB0119700A3D8DD /* AppDelegate.m */; };
 		BAB790BA1AB0119700A3D8DD /* GameScene.m in Sources */ = {isa = PBXBuildFile; fileRef = BAB790B91AB0119700A3D8DD /* GameScene.m */; };
@@ -175,6 +176,7 @@
 		BAB792F21AB0126100A3D8DD /* relaxation-Empee-EP-90.aiff in Resources */ = {isa = PBXBuildFile; fileRef = BAB792E41AB0126100A3D8DD /* relaxation-Empee-EP-90.aiff */; };
 		BAB792F31AB0126100A3D8DD /* relaxation-Kick-Winter-2-90.aiff in Resources */ = {isa = PBXBuildFile; fileRef = BAB792E51AB0126100A3D8DD /* relaxation-Kick-Winter-2-90.aiff */; };
 		BAB792F41AB0126100A3D8DD /* relaxation.plist in Resources */ = {isa = PBXBuildFile; fileRef = BAB792E61AB0126100A3D8DD /* relaxation.plist */; };
+		BAD14E8B1AB38EF600F37557 /* PluckyInstrument.m in Sources */ = {isa = PBXBuildFile; fileRef = BAD14E8A1AB38EF600F37557 /* PluckyInstrument.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -188,6 +190,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BA8FB3911AB38514005A6F6E /* SoftBoingInstrument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoftBoingInstrument.h; sourceTree = "<group>"; };
+		BA8FB3921AB38514005A6F6E /* SoftBoingInstrument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SoftBoingInstrument.m; sourceTree = "<group>"; };
 		BAB790AE1AB0119700A3D8DD /* Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAB790B21AB0119700A3D8DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BAB790B31AB0119700A3D8DD /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -529,6 +533,8 @@
 		BAB792E41AB0126100A3D8DD /* relaxation-Empee-EP-90.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = "relaxation-Empee-EP-90.aiff"; sourceTree = "<group>"; };
 		BAB792E51AB0126100A3D8DD /* relaxation-Kick-Winter-2-90.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = "relaxation-Kick-Winter-2-90.aiff"; sourceTree = "<group>"; };
 		BAB792E61AB0126100A3D8DD /* relaxation.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = relaxation.plist; sourceTree = "<group>"; };
+		BAD14E891AB38EF600F37557 /* PluckyInstrument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PluckyInstrument.h; sourceTree = "<group>"; };
+		BAD14E8A1AB38EF600F37557 /* PluckyInstrument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PluckyInstrument.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -551,6 +557,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BA8FB38D1AB3848C005A6F6E /* Instruments */ = {
+			isa = PBXGroup;
+			children = (
+				BAD14E891AB38EF600F37557 /* PluckyInstrument.h */,
+				BAD14E8A1AB38EF600F37557 /* PluckyInstrument.m */,
+				BA8FB3911AB38514005A6F6E /* SoftBoingInstrument.h */,
+				BA8FB3921AB38514005A6F6E /* SoftBoingInstrument.m */,
+			);
+			name = Instruments;
+			sourceTree = "<group>";
+		};
 		BAB790A51AB0119700A3D8DD = {
 			isa = PBXGroup;
 			children = (
@@ -573,6 +590,7 @@
 		BAB790B01AB0119700A3D8DD /* Pulse */ = {
 			isa = PBXGroup;
 			children = (
+				BA8FB38D1AB3848C005A6F6E /* Instruments */,
 				BAB790B51AB0119700A3D8DD /* AppDelegate.h */,
 				BAB790B61AB0119700A3D8DD /* AppDelegate.m */,
 				BAB790B81AB0119700A3D8DD /* GameScene.h */,
@@ -1480,6 +1498,7 @@
 				BAB792BB1AB011A100A3D8DD /* AKVariableFrequencyResponseBandPassFilter.m in Sources */,
 				BAB7928F1AB011A100A3D8DD /* AKCrunch.m in Sources */,
 				BAB792411AB011A100A3D8DD /* AKManager.m in Sources */,
+				BAD14E8B1AB38EF600F37557 /* PluckyInstrument.m in Sources */,
 				BAB792631AB011A100A3D8DD /* AKWarpedFFT.m in Sources */,
 				BAB790B41AB0119700A3D8DD /* main.m in Sources */,
 				BAB792C81AB011A100A3D8DD /* AKAudio.m in Sources */,
@@ -1487,6 +1506,7 @@
 				BAB7928A1AB011A100A3D8DD /* AKPluckedString.m in Sources */,
 				BAB7927C1AB011A100A3D8DD /* AKLinearADSREnvelope.m in Sources */,
 				BAB792801AB011A100A3D8DD /* AKSinusoidBursts.m in Sources */,
+				BA8FB3931AB38514005A6F6E /* SoftBoingInstrument.m in Sources */,
 				BAB7925C1AB011A100A3D8DD /* AKFFT.m in Sources */,
 				BAB7925B1AB011A100A3D8DD /* AKCrossSynthesizedFFT.m in Sources */,
 				BAB792971AB011A100A3D8DD /* AKBeatenPlate.m in Sources */,
@@ -1728,6 +1748,7 @@
 				BAB790D81AB0119700A3D8DD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BAB790D91AB0119700A3D8DD /* Build configuration list for PBXNativeTarget "PulseTests" */ = {
 			isa = XCConfigurationList;
@@ -1736,6 +1757,7 @@
 				BAB790DB1AB0119700A3D8DD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

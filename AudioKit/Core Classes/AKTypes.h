@@ -8,6 +8,13 @@
 
 #ifndef AKTypes_h
 #define AKTypes_h
+/// Boundary conditions for ends of the struck metal bar physical model
+typedef NS_OPTIONS(NSUInteger, AKStruckMetalBarBoundaryCondition)
+{
+    AKStruckMetalBarBoundaryConditionClamped=1,
+    AKStruckMetalBarBoundaryConditionPivoting=2,
+    AKStruckMetalBarBoundaryConditionFree=3,
+};
 
 /// Window types for converting audio into the frequency domain
 typedef NS_OPTIONS(NSUInteger, AKFFTWindowType)

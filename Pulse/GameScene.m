@@ -7,16 +7,21 @@
 //
 
 #import "GameScene.h"
+#import "PluckyInstrument.h"
+#import "SoftBoingInstrument.h"
 
 @interface GameScene ()
 
 @property(nonatomic) AKOrchestra *orchestra;
+@property(nonatomic) PluckyInstrument *collisionInstrument;
+
 
 @end
 
 @implementation GameScene
 
 double introduceLoopTimerDuration = 7.0;
+float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
 
 -(void)didMoveToView:(SKView *)view {
     
@@ -33,6 +38,8 @@ double introduceLoopTimerDuration = 7.0;
     // create all the loopers
     [self createSoundLoopers];
     [self createInteractors];
+    
+    _collisionInstrument = [[PluckyInstrument alloc] init];
     //    [self bringInNewLoop];
     _swipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(goHome)];
     _swipeRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
@@ -85,7 +92,8 @@ double introduceLoopTimerDuration = 7.0;
 
 -(void)moveInteractor:(SoundInteractor *)interactor
 {
-    CGVector velocityVector = CGVectorMake((CGFloat) random()/(CGFloat) RAND_MAX * 50, (CGFloat) random()/(CGFloat) RAND_MAX * 50);
+    CGVector velocityVector = CGVectorMake((CGFloat) random()/(CGFloat) RAND_MAX * 50,
+                                           (CGFloat) random()/(CGFloat) RAND_MAX * 50);
     if(rand() > RAND_MAX/2) velocityVector.dx = -velocityVector.dx;
     if(rand() > RAND_MAX/2) velocityVector.dy = -velocityVector.dy;
     [interactor.physicsBody setVelocity:velocityVector];
@@ -161,7 +169,10 @@ double introduceLoopTimerDuration = 7.0;
         [AKOrchestra addInstrument:player];
         [AKOrchestra addInstrument:player.audioAnalyzer];
     }
+    [AKOrchestra addInstrument:_collisionInstrument];
+    
     [AKOrchestra start];
+    
     for (SoundFilePlayer *player in _soundLoopers) {
         [player play];
         [player.audioAnalyzer play];
@@ -211,6 +222,13 @@ double introduceLoopTimerDuration = 7.0;
                 [bodyB applyImpulse:CGVectorMake(0, contactImpulse)];
             }
         }
+        if (contactImpulse > 0) {
+//            float pan = (bodyB.node.position.x / self.frame.size.width) * 2 - 1;
+            float frequency = collisionFrequencies[arc4random_uniform(5)];
+            float amplitude = powf(contactImpulse, 0.5) / 20.0;
+            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
+            [_collisionInstrument playNote:note];
+        }
     } else if((bodyA.categoryBitMask == ballCategory && bodyB.categoryBitMask == ballCategory)){
         if((SoundInteractor *)bodyA.node == _draggedInteractor){
             bodyA.velocity = CGVectorMake(0, 0);
@@ -220,6 +238,12 @@ double introduceLoopTimerDuration = 7.0;
         if(contactImpulse < 15){
             bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.05, bodyB.velocity.dy * 1.05);
             bodyA.velocity = CGVectorMake(bodyA.velocity.dx * 1.05, bodyA.velocity.dy * 1.05);
+        }
+        if (contactImpulse > 0) {
+            float frequency = collisionFrequencies[arc4random_uniform(5)];
+            float amplitude = powf(contactImpulse, 0.5) / 20.0;
+            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
+            [_collisionInstrument playNote:note];
         }
     }
 }
