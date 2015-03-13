@@ -123,6 +123,9 @@ double ringFadeTimeInSeconds = 0.2;
 - (void)turnOn {
     if (_ready) {
         [self removeActionForKey:@"VolumeDown"];
+        [self runAction:[SKAction scaleTo:0.9 duration:0.1] completion:^{
+            [self runAction:[SKAction scaleTo:1.0 duration:0.1]];
+        }];
         [self runAction:_volumeUpAction withKey:@"VolumeUp"];
         _state = YES;
     }
