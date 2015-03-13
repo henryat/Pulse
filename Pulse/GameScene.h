@@ -23,6 +23,10 @@ static const uint32_t borderCategory = 0x1 << 4; // 0000000000000000000000000001
 @property int loopCounter;
 @property NSTimer *timer;
 @property UISwipeGestureRecognizer *swipeRecognizer;
+@property UIPanGestureRecognizer *panInteractorRecognizer;
+@property UITapGestureRecognizer *tapInteractorRecognizer;
+@property UILongPressGestureRecognizer *longPressRecognizer;
+@property SoundInteractor *draggedInteractor;
 
 // smooth animation buffers
 @property NSMutableArray *averagedAmplitudes;

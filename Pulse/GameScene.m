@@ -37,6 +37,25 @@ double introduceLoopTimerDuration = 7.0;
     _swipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(goHome)];
     _swipeRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
     [self.view addGestureRecognizer:_swipeRecognizer];
+    
+    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
+    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(haltCell:)];
+    panRecognizer.delegate = self;
+    tapRecognizer.delegate = self;
+    longPressRecognizer.delegate = self;
+    longPressRecognizer.minimumPressDuration = .2;
+    [[self view] addGestureRecognizer:panRecognizer];
+    [[self view] addGestureRecognizer:tapRecognizer];
+    [[self view] addGestureRecognizer:longPressRecognizer];
+    
+    _draggedInteractor = nil;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    if([gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) return YES;
+    else if([otherGestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]] && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) return YES;
+    return NO;
 }
 
 - (void)bringInNewLoop {
@@ -193,6 +212,11 @@ double introduceLoopTimerDuration = 7.0;
             }
         }
     } else if((bodyA.categoryBitMask == ballCategory && bodyB.categoryBitMask == ballCategory)){
+        if((SoundInteractor *)bodyA.node == _draggedInteractor){
+            bodyA.velocity = CGVectorMake(0, 0);
+        } else if((SoundInteractor *)bodyB.node == _draggedInteractor){
+            bodyB.velocity = CGVectorMake(0, 0);
+        }
         if(contactImpulse < 15){
             bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.05, bodyB.velocity.dy * 1.05);
             bodyA.velocity = CGVectorMake(bodyA.velocity.dx * 1.05, bodyA.velocity.dy * 1.05);
@@ -200,21 +224,91 @@ double introduceLoopTimerDuration = 7.0;
     }
 }
 
-
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    /* Called when a touch begins */
+- (void)handleTapFrom:(UITapGestureRecognizer *)recognizer{
+    CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+    touchLocation = [self convertPointFromView:touchLocation];
+    SKNode *touchedNode = [self nodeAtPoint:touchLocation];
     
-    for (UITouch *touch in touches) {
-        CGPoint location = [touch locationInNode:self];
-        SKNode *touchedNode = [self nodeAtPoint:location];
+    if ([touchedNode isKindOfClass:[SoundInteractor class]]) {
+        SoundInteractor *interactor = (SoundInteractor *)touchedNode;
+        if ([interactor getState] == NO) {
+            [interactor turnOn];
+        } else {
+            [interactor turnOff];
+        }
+    }
+}
+
+- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        if(_draggedInteractor) return;
+        CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+        touchLocation = [self convertPointFromView:touchLocation];
+        [self setPanNodeForTouch:touchLocation];
+    } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+        CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+        touchLocation = [self convertPointFromView:touchLocation];
+        [self panForLocation:touchLocation];
+        [recognizer setTranslation:CGPointZero inView:recognizer.view];
+        
+    } else if (recognizer.state == UIGestureRecognizerStateEnded) {
+        if (_draggedInteractor) {
+            CGPoint velocity = [recognizer velocityInView:recognizer.view];
+            _draggedInteractor.physicsBody.velocity = CGVectorMake(velocity.x, -velocity.y);
+            double totalVelocity = sqrt((velocity.x * velocity.x) + (velocity.y * velocity.y));
+            if(totalVelocity > 200){
+                double scale = [self chooseScale:totalVelocity];
+                [UIView animateWithDuration:1 animations:^{
+                    _draggedInteractor.physicsBody.velocity = CGVectorMake(velocity.x/scale, -velocity.y/scale);
+                }];
+            }
+            
+            _draggedInteractor = nil;
+        }
+        
+    }
+}
+
+- (void)setPanNodeForTouch:(CGPoint)location
+{
+    SKNode *touchedNode = [self nodeAtPoint:location];
+    
+    if ([touchedNode isKindOfClass:[SoundInteractor class]]) {
+        SoundInteractor *interactor = (SoundInteractor *)touchedNode;
+        _draggedInteractor = interactor;
+        _draggedInteractor.physicsBody.velocity = CGVectorMake(0, 0);
+    }
+}
+
+- (void)panForLocation:(CGPoint)location{
+    if(!_draggedInteractor) return;
+    [_draggedInteractor setPosition:location];
+}
+
+- (double)chooseScale:(double)totalVelocity{
+    if(totalVelocity < 150)
+        return 1.2;
+    else if(totalVelocity < 300)
+        return 1.5;
+    else if(totalVelocity < 500)
+        return 2;
+    else if(totalVelocity < 1000)
+        return 3;
+    else if(totalVelocity < 2000)
+        return 5;
+    return 20;
+}
+
+- (void)haltCell:(UILongPressGestureRecognizer *)recognizer
+{
+    if(recognizer.state == UIGestureRecognizerStateBegan){
+        CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+        touchLocation = [self convertPointFromView:touchLocation];
+        SKNode *touchedNode = [self nodeAtPoint:touchLocation];
         
         if ([touchedNode isKindOfClass:[SoundInteractor class]]) {
             SoundInteractor *interactor = (SoundInteractor *)touchedNode;
-            if ([interactor getState] == NO) {
-                [interactor turnOn];
-            } else {
-                [interactor turnOff];
-            }
+            interactor.physicsBody.velocity = CGVectorMake(0, 0);
         }
     }
 }
@@ -227,6 +321,7 @@ double introduceLoopTimerDuration = 7.0;
         interactor.physicsBody.velocity = CGVectorMake(0, 0);
     }
     [_timer invalidate];
+    _draggedInteractor = nil;
 }
 
 - (void)resetScene
