@@ -157,7 +157,7 @@
     _goalNumberLabel.textColor = [UIColor darkGrayColor];
     [_goalNumberLabel sizeToFit];
     _goalNumberLabel.frame = CGRectMake((windowWidth - _goalNumberLabel.frame.size.width)/2, _goalCounter.frame.origin.y - _goalNumberLabel.frame.size.height - 20, _goalNumberLabel.frame.size.width ,_goalNumberLabel.frame.size.height);
-    _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:00", (int)_goalCounter.value];
+    [self changeCounter];
     [_homeView addSubview:_goalNumberLabel];
     
     UILabel *descriptionLabel = [[UILabel alloc] init];
@@ -186,7 +186,12 @@
 
 - (void)changeCounter
 {
-    _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:00", (int)_goalCounter.value];
+    int count = _goalCounter.value;
+    if(count % 2){
+        _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:30", (int)_goalCounter.value/2];
+    } else {
+        _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:00", (int)_goalCounter.value/2];
+    }
 }
 
 - (void)returnToMenu:(NSNotification *)notification
