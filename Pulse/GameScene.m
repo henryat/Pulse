@@ -377,7 +377,7 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
 
 - (void)startTimer:(NSNotification *)notification{
     NSNumber *timerValue = notification.object;
-    _secondsRemaining = timerValue.intValue * 60;
+    _secondsRemaining = timerValue.intValue * 30;
     _loopTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(decrementTimer) userInfo:nil repeats:YES];
 }
 
