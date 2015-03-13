@@ -144,24 +144,24 @@
     
     [_goalCounter addTarget:self action:@selector(changeCounter) forControlEvents:UIControlEventValueChanged];
     
-    _goalCounter.minimumValue = 0;
+    _goalCounter.minimumValue = 1;
     _goalCounter.maximumValue = 10;
     _goalCounter.stepValue = 1;
     _goalCounter.value = 3;
     
     
     _goalNumberLabel = [[UILabel alloc] init];
-    _goalNumberLabel.text = [NSString stringWithFormat:@"Weekly Goal: %d", 10];
+    _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:00", 10];
     _goalNumberLabel.textAlignment = NSTextAlignmentCenter;
     _goalNumberLabel.font = [UIFont fontWithName:@"Trebuchet MS" size:20];
     _goalNumberLabel.textColor = [UIColor darkGrayColor];
     [_goalNumberLabel sizeToFit];
-    _goalNumberLabel.frame = CGRectMake((windowWidth - _goalNumberLabel.frame.size.width)/2, _goalCounter.frame.origin.y - _goalNumberLabel.frame.size.height - 40, _goalNumberLabel.frame.size.width ,_goalNumberLabel.frame.size.height);
-    _goalNumberLabel.text = [NSString stringWithFormat:@"Weekly Goal: %d", (int)_goalCounter.value];
+    _goalNumberLabel.frame = CGRectMake((windowWidth - _goalNumberLabel.frame.size.width)/2, _goalCounter.frame.origin.y - _goalNumberLabel.frame.size.height - 20, _goalNumberLabel.frame.size.width ,_goalNumberLabel.frame.size.height);
+    _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:00", (int)_goalCounter.value];
     [_homeView addSubview:_goalNumberLabel];
     
     UILabel *descriptionLabel = [[UILabel alloc] init];
-    descriptionLabel.text = [NSString stringWithFormat:@"determines frequency of push reminders"];
+    descriptionLabel.text = [NSString stringWithFormat:@"determines length of session"];
     descriptionLabel.textAlignment = NSTextAlignmentCenter;
     descriptionLabel.font = [UIFont fontWithName:@"TrebuchetMS-Italic" size:10];
     descriptionLabel.textColor = [UIColor darkGrayColor];
@@ -169,14 +169,6 @@
     descriptionLabel.frame = CGRectMake((windowWidth - descriptionLabel.frame.size.width)/2, _goalCounter.frame.origin.y - descriptionLabel.frame.size.height - 5, descriptionLabel.frame.size.width, descriptionLabel.frame.size.height);
     [_homeView addSubview:descriptionLabel];
     
-    UILabel *completedLabel = [[UILabel alloc] init];
-    completedLabel.text = [NSString stringWithFormat:@"Completed: 1"];
-    completedLabel.textAlignment = NSTextAlignmentCenter;
-    completedLabel.font = [UIFont fontWithName:@"Trebuchet MS" size:16];
-    completedLabel.textColor = [UIColor darkGrayColor];
-    [completedLabel sizeToFit];
-    completedLabel.frame = CGRectMake((windowWidth - completedLabel.frame.size.width)/2, _goalCounter.frame.origin.y - completedLabel.frame.size.height - 20, completedLabel.frame.size.width, completedLabel.frame.size.height);
-    [_homeView addSubview:completedLabel];
 }
 
 - (void)fireFirstScape
@@ -188,13 +180,13 @@
         _homeView.frame = CGRectMake(-_homeView.frame.size.width, _homeView.frame.origin.y, _homeView.frame.size.width, _homeView.frame.size.height);
         _gameViewContainer.frame = CGRectMake(0, _gameViewContainer.frame.origin.y, _gameViewContainer.frame.size.width, _gameViewContainer.frame.size.height);
     } completion:^(BOOL finished){
-        // called when transition finishes
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"StartTimer" object:[NSNumber numberWithDouble:_goalCounter.value]];
     }];
 }
 
 - (void)changeCounter
 {
-    _goalNumberLabel.text = [NSString stringWithFormat:@"Weekly Goal: %d", (int)_goalCounter.value];
+    _goalNumberLabel.text = [NSString stringWithFormat:@"Session Time: %d:00", (int)_goalCounter.value];
 }
 
 - (void)returnToMenu:(NSNotification *)notification

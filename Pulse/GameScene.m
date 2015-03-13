@@ -34,6 +34,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupScene) name:@"SetupScene" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resetScene) name:@"ResetScene" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startTimer:) name:@"StartTimer" object:nil];
+    
     
     // create all the loopers
     [self createSoundLoopers];
@@ -56,7 +58,21 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
     [[self view] addGestureRecognizer:tapRecognizer];
     [[self view] addGestureRecognizer:longPressRecognizer];
     
+    CGFloat windowWidth = [UIScreen mainScreen].bounds.size.width;
+    CGFloat windowHeight = [UIScreen mainScreen].bounds.size.height;
+    
+    _timerLabel = [[SKLabelNode alloc] init];
+    _timerLabel.text = [NSString stringWithFormat:@"-:--"];
+    _timerLabel.fontSize = 16;
+    _timerLabel.fontColor = [UIColor whiteColor];
+    [_timerLabel setPosition: CGPointMake(windowWidth - 25, windowHeight - 25)];
+    _timerLabel.alpha = .6;
+    _timerLabel.userInteractionEnabled = NO;
+    [self addChild:_timerLabel];
+    
     _draggedInteractor = nil;
+    
+    self.view.frameInterval = 2;
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
@@ -77,17 +93,16 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
 
 -(void)addNextInteractor
 {
+    if (_loopCounter >= _soundInteractors.count) {
+        [_loopTimer invalidate];
+        return;
+    }
     SoundInteractor *interactor = _soundInteractors[_loopCounter];
     [self addChild:interactor];
     [interactor appearWithGrowAnimation];
     [self moveInteractor:interactor];
     
     _loopCounter ++;
-    
-    if (_loopCounter > _soundInteractors.count - 1) {
-        [_timer invalidate];
-        return;
-    }
 }
 
 -(void)moveInteractor:(SoundInteractor *)interactor
@@ -186,8 +201,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
         [_soundInteractors exchangeObjectAtIndex:i withObjectAtIndex:n];
     }
     
-    _timer = [NSTimer scheduledTimerWithTimeInterval:introduceLoopTimerDuration target:self selector:@selector(bringInNewLoop) userInfo:nil repeats:YES];
-    [_timer fire];
+    _loopTimer = [NSTimer scheduledTimerWithTimeInterval:introduceLoopTimerDuration target:self selector:@selector(bringInNewLoop) userInfo:nil repeats:YES];
+    [_loopTimer fire];
 }
 
 
@@ -222,13 +237,13 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
                 [bodyB applyImpulse:CGVectorMake(0, contactImpulse)];
             }
         }
-        if (contactImpulse > 0) {
-//            float pan = (bodyB.node.position.x / self.frame.size.width) * 2 - 1;
-            float frequency = collisionFrequencies[arc4random_uniform(5)];
-            float amplitude = powf(contactImpulse, 0.5) / 20.0;
-            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
-            [_collisionInstrument playNote:note];
-        }
+//        if (contactImpulse > 0) {
+////            float pan = (bodyB.node.position.x / self.frame.size.width) * 2 - 1;
+//            float frequency = collisionFrequencies[arc4random_uniform(5)];
+//            float amplitude = powf(contactImpulse, 0.5) / 20.0;
+//            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
+//            [_collisionInstrument playNote:note];
+//        }
     } else if((bodyA.categoryBitMask == ballCategory && bodyB.categoryBitMask == ballCategory)){
         if((SoundInteractor *)bodyA.node == _draggedInteractor){
             bodyA.velocity = CGVectorMake(0, 0);
@@ -239,12 +254,12 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
             bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.05, bodyB.velocity.dy * 1.05);
             bodyA.velocity = CGVectorMake(bodyA.velocity.dx * 1.05, bodyA.velocity.dy * 1.05);
         }
-        if (contactImpulse > 0) {
-            float frequency = collisionFrequencies[arc4random_uniform(5)];
-            float amplitude = powf(contactImpulse, 0.5) / 20.0;
-            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
-            [_collisionInstrument playNote:note];
-        }
+//        if (contactImpulse > 0) {
+//            float frequency = collisionFrequencies[arc4random_uniform(5)];
+//            float amplitude = powf(contactImpulse, 0.5) / 20.0;
+//            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
+//            [_collisionInstrument playNote:note];
+//        }
     }
 }
 
@@ -311,15 +326,15 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
 
 - (double)chooseScale:(double)totalVelocity{
     if(totalVelocity < 150)
-        return 1.2;
+        return 1.6;
     else if(totalVelocity < 300)
-        return 1.5;
+        return 1.9;
     else if(totalVelocity < 500)
-        return 2;
-    else if(totalVelocity < 1000)
         return 3;
-    else if(totalVelocity < 2000)
+    else if(totalVelocity < 1000)
         return 5;
+    else if(totalVelocity < 2000)
+        return 9;
     return 20;
 }
 
@@ -344,7 +359,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
         //        [interactor turnOff];
         interactor.physicsBody.velocity = CGVectorMake(0, 0);
     }
-    [_timer invalidate];
+    [_loopTimer invalidate];
+    _secondsRemaining = 0;
     _draggedInteractor = nil;
 }
 
@@ -357,6 +373,28 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
     }
     [AKOrchestra reset];
     //    [self bringInNewLoop];
+}
+
+- (void)startTimer:(NSNotification *)notification{
+    NSNumber *timerValue = notification.object;
+    _secondsRemaining = timerValue.intValue * 60;
+    _loopTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(decrementTimer) userInfo:nil repeats:YES];
+}
+
+- (void)decrementTimer
+{
+    _secondsRemaining --;
+    if(_secondsRemaining == 0)
+        [self goHome];
+    else {
+        int minLeft = _secondsRemaining/60;
+        int secLeft = _secondsRemaining % 60;
+        NSString *timerString = [NSString stringWithFormat:@"%d:%d", minLeft, secLeft];
+        if(secLeft < 10){
+            timerString = [NSString stringWithFormat:@"%d:0%d", minLeft, secLeft];
+        }
+        _timerLabel.text = timerString;
+    }
 }
 
 -(void)update:(CFTimeInterval)currentTime {
