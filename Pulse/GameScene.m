@@ -34,6 +34,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupScene) name:@"SetupScene" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resetScene) name:@"ResetScene" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(startTimer:) name:@"StartTimer" object:nil];
+    
     
     // create all the loopers
     [self createSoundLoopers];
@@ -44,6 +46,39 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
     _swipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(goHome)];
     _swipeRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
     [self.view addGestureRecognizer:_swipeRecognizer];
+    
+    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapFrom:)];
+    UILongPressGestureRecognizer *longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(haltCell:)];
+    panRecognizer.delegate = self;
+    tapRecognizer.delegate = self;
+    longPressRecognizer.delegate = self;
+    longPressRecognizer.minimumPressDuration = .2;
+    [[self view] addGestureRecognizer:panRecognizer];
+    [[self view] addGestureRecognizer:tapRecognizer];
+    [[self view] addGestureRecognizer:longPressRecognizer];
+    
+    CGFloat windowWidth = [UIScreen mainScreen].bounds.size.width;
+    CGFloat windowHeight = [UIScreen mainScreen].bounds.size.height;
+    
+    _timerLabel = [[SKLabelNode alloc] init];
+    _timerLabel.text = [NSString stringWithFormat:@"-:--"];
+    _timerLabel.fontSize = 16;
+    _timerLabel.fontColor = [UIColor whiteColor];
+    [_timerLabel setPosition: CGPointMake(windowWidth - 25, windowHeight - 25)];
+    _timerLabel.alpha = .6;
+    _timerLabel.userInteractionEnabled = NO;
+    [self addChild:_timerLabel];
+    
+    _draggedInteractor = nil;
+    
+    self.view.frameInterval = 2;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    if([gestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]] && [otherGestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) return YES;
+    else if([otherGestureRecognizer isKindOfClass:[UILongPressGestureRecognizer class]] && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) return YES;
+    return NO;
 }
 
 - (void)bringInNewLoop {
@@ -58,17 +93,16 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
 
 -(void)addNextInteractor
 {
+    if (_loopCounter >= _soundInteractors.count) {
+        [_loopTimer invalidate];
+        return;
+    }
     SoundInteractor *interactor = _soundInteractors[_loopCounter];
     [self addChild:interactor];
     [interactor appearWithGrowAnimation];
     [self moveInteractor:interactor];
     
     _loopCounter ++;
-    
-    if (_loopCounter > _soundInteractors.count - 1) {
-        [_timer invalidate];
-        return;
-    }
 }
 
 -(void)moveInteractor:(SoundInteractor *)interactor
@@ -167,8 +201,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
         [_soundInteractors exchangeObjectAtIndex:i withObjectAtIndex:n];
     }
     
-    _timer = [NSTimer scheduledTimerWithTimeInterval:introduceLoopTimerDuration target:self selector:@selector(bringInNewLoop) userInfo:nil repeats:YES];
-    [_timer fire];
+    _loopTimer = [NSTimer scheduledTimerWithTimeInterval:introduceLoopTimerDuration target:self selector:@selector(bringInNewLoop) userInfo:nil repeats:YES];
+    [_loopTimer fire];
 }
 
 
@@ -203,42 +237,117 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
                 [bodyB applyImpulse:CGVectorMake(0, contactImpulse)];
             }
         }
-        if (contactImpulse > 0) {
-//            float pan = (bodyB.node.position.x / self.frame.size.width) * 2 - 1;
-            float frequency = collisionFrequencies[arc4random_uniform(5)];
-            float amplitude = powf(contactImpulse, 0.5) / 20.0;
-            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
-            [_collisionInstrument playNote:note];
-        }
+//        if (contactImpulse > 0) {
+////            float pan = (bodyB.node.position.x / self.frame.size.width) * 2 - 1;
+//            float frequency = collisionFrequencies[arc4random_uniform(5)];
+//            float amplitude = powf(contactImpulse, 0.5) / 20.0;
+//            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
+//            [_collisionInstrument playNote:note];
+//        }
     } else if((bodyA.categoryBitMask == ballCategory && bodyB.categoryBitMask == ballCategory)){
+        if((SoundInteractor *)bodyA.node == _draggedInteractor){
+            bodyA.velocity = CGVectorMake(0, 0);
+        } else if((SoundInteractor *)bodyB.node == _draggedInteractor){
+            bodyB.velocity = CGVectorMake(0, 0);
+        }
         if(contactImpulse < 15){
             bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.05, bodyB.velocity.dy * 1.05);
             bodyA.velocity = CGVectorMake(bodyA.velocity.dx * 1.05, bodyA.velocity.dy * 1.05);
         }
-        if (contactImpulse > 0) {
-            float frequency = collisionFrequencies[arc4random_uniform(5)];
-            float amplitude = powf(contactImpulse, 0.5) / 20.0;
-            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
-            [_collisionInstrument playNote:note];
+//        if (contactImpulse > 0) {
+//            float frequency = collisionFrequencies[arc4random_uniform(5)];
+//            float amplitude = powf(contactImpulse, 0.5) / 20.0;
+//            Pluck *note = [[Pluck alloc] initWithFrequency:frequency pan:0 amplitude:amplitude];
+//            [_collisionInstrument playNote:note];
+//        }
+    }
+}
+
+- (void)handleTapFrom:(UITapGestureRecognizer *)recognizer{
+    CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+    touchLocation = [self convertPointFromView:touchLocation];
+    SKNode *touchedNode = [self nodeAtPoint:touchLocation];
+    
+    if ([touchedNode isKindOfClass:[SoundInteractor class]]) {
+        SoundInteractor *interactor = (SoundInteractor *)touchedNode;
+        if ([interactor getState] == NO) {
+            [interactor turnOn];
+        } else {
+            [interactor turnOff];
         }
     }
 }
 
+- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        if(_draggedInteractor) return;
+        CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+        touchLocation = [self convertPointFromView:touchLocation];
+        [self setPanNodeForTouch:touchLocation];
+    } else if (recognizer.state == UIGestureRecognizerStateChanged) {
+        CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+        touchLocation = [self convertPointFromView:touchLocation];
+        [self panForLocation:touchLocation];
+        [recognizer setTranslation:CGPointZero inView:recognizer.view];
+        
+    } else if (recognizer.state == UIGestureRecognizerStateEnded) {
+        if (_draggedInteractor) {
+            CGPoint velocity = [recognizer velocityInView:recognizer.view];
+            _draggedInteractor.physicsBody.velocity = CGVectorMake(velocity.x, -velocity.y);
+            double totalVelocity = sqrt((velocity.x * velocity.x) + (velocity.y * velocity.y));
+            if(totalVelocity > 200){
+                double scale = [self chooseScale:totalVelocity];
+                [UIView animateWithDuration:1 animations:^{
+                    _draggedInteractor.physicsBody.velocity = CGVectorMake(velocity.x/scale, -velocity.y/scale);
+                }];
+            }
+            
+            _draggedInteractor = nil;
+        }
+        
+    }
+}
 
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    /* Called when a touch begins */
+- (void)setPanNodeForTouch:(CGPoint)location
+{
+    SKNode *touchedNode = [self nodeAtPoint:location];
     
-    for (UITouch *touch in touches) {
-        CGPoint location = [touch locationInNode:self];
-        SKNode *touchedNode = [self nodeAtPoint:location];
+    if ([touchedNode isKindOfClass:[SoundInteractor class]]) {
+        SoundInteractor *interactor = (SoundInteractor *)touchedNode;
+        _draggedInteractor = interactor;
+        _draggedInteractor.physicsBody.velocity = CGVectorMake(0, 0);
+    }
+}
+
+- (void)panForLocation:(CGPoint)location{
+    if(!_draggedInteractor) return;
+    [_draggedInteractor setPosition:location];
+}
+
+- (double)chooseScale:(double)totalVelocity{
+    if(totalVelocity < 150)
+        return 1.6;
+    else if(totalVelocity < 300)
+        return 1.9;
+    else if(totalVelocity < 500)
+        return 3;
+    else if(totalVelocity < 1000)
+        return 5;
+    else if(totalVelocity < 2000)
+        return 9;
+    return 20;
+}
+
+- (void)haltCell:(UILongPressGestureRecognizer *)recognizer
+{
+    if(recognizer.state == UIGestureRecognizerStateBegan){
+        CGPoint touchLocation = [recognizer locationInView:recognizer.view];
+        touchLocation = [self convertPointFromView:touchLocation];
+        SKNode *touchedNode = [self nodeAtPoint:touchLocation];
         
         if ([touchedNode isKindOfClass:[SoundInteractor class]]) {
             SoundInteractor *interactor = (SoundInteractor *)touchedNode;
-            if ([interactor getState] == NO) {
-                [interactor turnOn];
-            } else {
-                [interactor turnOff];
-            }
+            interactor.physicsBody.velocity = CGVectorMake(0, 0);
         }
     }
 }
@@ -250,7 +359,9 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
         //        [interactor turnOff];
         interactor.physicsBody.velocity = CGVectorMake(0, 0);
     }
-    [_timer invalidate];
+    [_loopTimer invalidate];
+    _secondsRemaining = 0;
+    _draggedInteractor = nil;
 }
 
 - (void)resetScene
@@ -262,6 +373,28 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
     }
     [AKOrchestra reset];
     //    [self bringInNewLoop];
+}
+
+- (void)startTimer:(NSNotification *)notification{
+    NSNumber *timerValue = notification.object;
+    _secondsRemaining = timerValue.intValue * 60;
+    _loopTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(decrementTimer) userInfo:nil repeats:YES];
+}
+
+- (void)decrementTimer
+{
+    _secondsRemaining --;
+    if(_secondsRemaining == 0)
+        [self goHome];
+    else {
+        int minLeft = _secondsRemaining/60;
+        int secLeft = _secondsRemaining % 60;
+        NSString *timerString = [NSString stringWithFormat:@"%d:%d", minLeft, secLeft];
+        if(secLeft < 10){
+            timerString = [NSString stringWithFormat:@"%d:0%d", minLeft, secLeft];
+        }
+        _timerLabel.text = timerString;
+    }
 }
 
 -(void)update:(CFTimeInterval)currentTime {

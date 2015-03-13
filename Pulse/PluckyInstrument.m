@@ -77,7 +77,7 @@
         [self addProperty:_pan];
         
         // Optionally set a default note duration
-        self.duration.value = 3.0;
+        self.duration.value = 1.0;
     }
     return self;
 }
