@@ -1328,6 +1328,7 @@
 				TargetAttributes = {
 					BAB790AD1AB0119700A3D8DD = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = AM6T4M5QD9;
 					};
 					BAB790CB1AB0119700A3D8DD = {
 						CreatedOnToolsVersion = 6.1.1;

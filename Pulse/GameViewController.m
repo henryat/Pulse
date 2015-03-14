@@ -51,6 +51,7 @@
     [self.view addSubview:_homeView];
     
     
+    
     _gameViewContainer = [[SKView alloc] initWithFrame:CGRectMake(_homeView.frame.size.width, 0, _homeView.frame.size.width, _homeView.frame.size.height)];
     [self.view addSubview:_gameViewContainer];
     //     Create and configure the scene.
@@ -83,10 +84,22 @@
 
 - (void)fillHomeView
 {
-    [self addTitleLabel];
+    [self addBackground];
+//    [self addTitleLabel];
     [self addFirstScapeButton];
     [self addSecondScapeButton];
     [self addGoalCounter];
+}
+
+- (void)addBackground
+{
+    CGFloat windowWidth = [UIScreen mainScreen].bounds.size.width;
+    UIImage *image = [UIImage imageNamed:@"background.png"];
+    UIImageView *background = [[UIImageView alloc] initWithImage:image];
+    CGFloat imageScale = windowWidth/background.frame.size.width;
+    background.transform = CGAffineTransformMakeScale(imageScale, imageScale);
+    background.frame = CGRectMake(0, 0, background.frame.size.width, background.frame.size.height);
+    [self.view addSubview:background];
 }
 
 - (void)addTitleLabel

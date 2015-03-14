@@ -164,11 +164,11 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
         
         [interactor setPhysicsBody:[SKPhysicsBody bodyWithCircleOfRadius:interactor.frame.size.width/2]];
         interactor.physicsBody.affectedByGravity = NO;
-        interactor.physicsBody.allowsRotation = YES;
+        interactor.physicsBody.allowsRotation = NO;
         interactor.physicsBody.dynamic = YES;
         interactor.physicsBody.friction = 0.0f;
-        interactor.physicsBody.restitution = 1.0f;
-        interactor.physicsBody.linearDamping = 0.0f;
+        interactor.physicsBody.restitution = 0.0f;
+        interactor.physicsBody.linearDamping = 0.1f;
         interactor.physicsBody.angularDamping = 0.0f;
         
         interactor.physicsBody.categoryBitMask = ballCategory;
@@ -220,12 +220,12 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
                 //                NSLog(@"rightWall");
                 
                 [bodyB applyImpulse:CGVectorMake(-contactImpulse, 0)];
-                if(abs(bodyB.velocity.dx) + abs(bodyB.velocity.dy) < 25){
-                    bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.5, bodyB.velocity.dy * 1.5);
-                }
-                if(abs(bodyB.velocity.dx) + abs(bodyB.velocity.dy) < 15){
-                    bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 3, bodyB.velocity.dy * 3);
-                }
+//                if(abs(bodyB.velocity.dx) + abs(bodyB.velocity.dy) < 25){
+//                    bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.5, bodyB.velocity.dy * 1.5);
+//                }
+//                if(abs(bodyB.velocity.dx) + abs(bodyB.velocity.dy) < 15){
+//                    bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 3, bodyB.velocity.dy * 3);
+//                }
             } else if(contactNormal.dx == 1 && contactNormal.dy == 0){ // left wall
                 //                NSLog(@"leftWall");
                 [bodyB applyImpulse:CGVectorMake(contactImpulse, 0)];
@@ -251,8 +251,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
             bodyB.velocity = CGVectorMake(0, 0);
         }
         if(contactImpulse < 15){
-            bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.05, bodyB.velocity.dy * 1.05);
-            bodyA.velocity = CGVectorMake(bodyA.velocity.dx * 1.05, bodyA.velocity.dy * 1.05);
+            bodyB.velocity = CGVectorMake(bodyB.velocity.dx * 1.02, bodyB.velocity.dy * 1.02);
+            bodyA.velocity = CGVectorMake(bodyA.velocity.dx * 1.02, bodyA.velocity.dy * 1.02);
         }
 //        if (contactImpulse > 0) {
 //            float frequency = collisionFrequencies[arc4random_uniform(5)];
@@ -296,7 +296,8 @@ float collisionFrequencies[5] = {261.63, 329.63, 392.00, 440.00, 523.25};
             _draggedInteractor.physicsBody.velocity = CGVectorMake(velocity.x, -velocity.y);
             double totalVelocity = sqrt((velocity.x * velocity.x) + (velocity.y * velocity.y));
             if(totalVelocity > 200){
-                double scale = [self chooseScale:totalVelocity];
+//                double scale = [self chooseScale:totalVelocity];
+                double scale = 1;
                 [UIView animateWithDuration:1 animations:^{
                     _draggedInteractor.physicsBody.velocity = CGVectorMake(velocity.x/scale, -velocity.y/scale);
                 }];
